@@ -187,7 +187,7 @@ def markSpots(playerPosition):
         for xChange, yChange in DIRECTIONS:
             adjX, adjY = x + xChange, y + yChange
             if 0 <= adjX < len(map[0]) and 0 <= adjY < len(map):
-                if isBreeze:
+                if isBreeze and playerVision[adjY][adjX] != "S":
                     isPit = findPits(adjX, adjY)
                     if isPit:
                         if (playerVision[y][x] != "#" or playerVision[y][x] != "@"):
@@ -202,7 +202,6 @@ def markSpots(playerPosition):
                             playerVision[adjY][adjX] = "?"
                 else:
                     # to not modify @ or #
-
                     if playerVision[adjY][adjX] == "." or playerVision[adjY][adjX] == "?":
                         playerVision[adjY][adjX] = "S"
 
