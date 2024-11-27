@@ -14,7 +14,6 @@ fall((X, Y)) :- pit((X, Y)).
 findBreeze((X, Y)) :- adjacent((X, Y), Pit), pit(Pit).
 
 % Compares all breezes found so far
-% Compares all breezes found so far
 findPit((X, Y)) :-
     % dont check if it is a pit if it was a previously explored spot
     \+ explored((X, Y)),
@@ -24,17 +23,11 @@ findPit((X, Y)) :-
 
     % Check if there are enough breeze spots
     length(BreezeSpots, Count),
-    Count >= 3.
-
-safeConfirm((X, Y)) :-
-    findall((AdjX, AdjY), (adjacent((X, Y), (AdjX, AdjY)), explored((AdjX, AdjY))), Explored),
-
-    % Check if there are enough breeze spots
-    length(Explored, Count),
     Count >= 4.
 
-% explored(1,2)
-% pit(1,3)
+findPitCorner((X, Y)) :-
+    \+ explored((X, Y)),
 
-% breezeSpot(1, 3)
-% breezeSpot(1, 3)
+    findall((AdjX, AdjY), (adjacent((X, Y), (AdjX, AdjY)), breezeSpot((AdjX, AdjY))), BreezeSpots),
+    length(BreezeSpots, Count),
+    Count >= 2.
