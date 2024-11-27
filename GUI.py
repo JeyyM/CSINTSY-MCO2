@@ -1,3 +1,64 @@
+"""
+import tkinter as tk
+
+# Create the main window
+root = tk.Tk()
+root.title("6x6 Grid with Movement")
+
+# Set window size
+root.geometry("400x400")
+
+# Create a 6x6 grid of labels (empty cells)
+grid = []
+for i in range(6):
+    row = []
+    for j in range(6):
+        label = tk.Label(root, text=" ", width=5, height=2, relief="solid", anchor="center")
+        label.grid(row=i, column=j, padx=0, pady=0)  # Ensure no extra padding
+        row.append(label)
+    grid.append(row)
+
+# Create a label that will move within the grid (cursor)
+cursor = tk.Label(root, text="X", width=5, height=2, bg="blue", fg="white", anchor="center")
+cursor.grid(row=0, column=0)
+
+# Initialize the cursor's position
+cursor_pos = [0, 0]
+
+# Function to move the cursor
+def move_cursor(direction):
+    global cursor_pos
+
+    # Update position based on the direction
+    if direction == "up" and cursor_pos[0] > 0:
+        cursor_pos[0] -= 1
+    elif direction == "down" and cursor_pos[0] < 5:
+        cursor_pos[0] += 1
+    elif direction == "left" and cursor_pos[1] > 0:
+        cursor_pos[1] -= 1
+    elif direction == "right" and cursor_pos[1] < 5:
+        cursor_pos[1] += 1
+
+    # Update the cursor position in the grid
+    cursor.grid(row=cursor_pos[0], column=cursor_pos[1])
+
+# Buttons for movement (remove the gap between buttons)
+button_up = tk.Button(root, text="Up", command=lambda: move_cursor("up"))
+button_up.grid(row=6, column=2, padx=0, pady=5)
+
+button_down = tk.Button(root, text="Down", command=lambda: move_cursor("down"))
+button_down.grid(row=7, column=2, padx=0, pady=5)
+
+button_left = tk.Button(root, text="Left", command=lambda: move_cursor("left"))
+button_left.grid(row=6, column=1, padx=0, pady=5)
+
+button_right = tk.Button(root, text="Right", command=lambda: move_cursor("right"))
+button_right.grid(row=6, column=3, padx=0, pady=5)
+
+# Run the Tkinter event loop
+root.mainloop()
+
+"""
 # pip install pyswip
 
 # for prolog use
@@ -29,7 +90,7 @@ playerVision = [ ['.', '.', '.', '.', '.', '.'],
                 ['.', '.', '.', '.', '.', '.'],
                 ['.', '.', '.', '.', '.', '.'],
                 ['.', '.', '.', '.', '.', '.'],
-                ['.', '.', '.', '.', '.', '.']]
+                ['.', '.', '.', '.', '.', '.'] ]
 
 # store those spots as pit or gold within the KB
 def storeItems(map):
@@ -51,6 +112,9 @@ def findPlayerStart(map):
 
 playerPosition = findPlayerStart(map)
 # print(f"Starting Position: {playerPosition}")
+
+def exportMap():
+    return playerVision
 
 # just used on the playerVision
 def displayMap():
@@ -111,7 +175,7 @@ def markSpots(playerPosition):
 
     # to add a new breeze to the KB
     isBreeze = bool(list(prolog.query(f"findBreeze(({x}, {y}))")))
-
+    
     print("COORDINATE CHECK", x, y, playerVision[x][y])
 
     if isBreeze:
@@ -138,7 +202,8 @@ def markSpots(playerPosition):
                         playerVision[adjY][adjX] = "?"
             else:
                 # to not modify @ or #
-                if playerVision[adjY][adjX] == ".":
+
+                if playerVision[adjY][adjX] == "." or playerVision[adjY][adjX] == "?":
                     playerVision[adjY][adjX] = "S"
 
 # Set the player's starting position in playerVision
@@ -148,11 +213,11 @@ playerVision[playerPosition[1]][playerPosition[0]] = "H"
 prolog.assertz(f"explored(({playerPosition[0]}, {playerPosition[1]}))")
 markSpots(playerPosition)
 
-while start:
-    print("Player Vision:")
-    displayMap()
+def playerMove(direction):
+    global playerPosition
+    global coinCount
 
-    action = input("Enter movement (move up, move down, move left, move right): ")
+    action = direction
 
     newPosition, message = movePlayer(playerPosition, action)
 
@@ -180,15 +245,80 @@ while start:
         # die
         elif bool(list(prolog.query(f"fall(({x}, {y}))"))):
             print("Mission Failed!")
-            start = False
+            root.quit()
         # Home
         elif map[y][x] == 'H':
             # the player CAN leave but not forced to
             if (coinCount >= 2):
                 leave(coinCount)
-                start = False
+                root.quit()
 
         # Update player position
         playerPosition = newPosition
     else:
         print(message)
+
+    print("Player Vision:")
+    displayMap()
+
+    grid = []
+    for i in range(6):
+        row = []
+        for j in range(6):
+            if (playerVision[i][j] == 'H' or playerVision[i][j] == 'S' or playerVision[i][j] == '#' or playerVision[i][j] == '@'):
+                label = tk.Label(root, text=playerVision[i][j], width=5, height=2, bg="green", relief="solid", anchor="center")
+            elif (playerVision[i][j] == 'P'):
+                label = tk.Label(root, text=playerVision[i][j], width=5, height=2, bg="red", relief="solid", anchor="center")
+            else:
+                label = tk.Label(root, text=playerVision[i][j], width=5, height=2, relief="solid", anchor="center")
+            label.grid(row=i, column=j, padx=0, pady=0)  # Ensure no extra padding
+            row.append(label)
+        grid.append(row)
+
+# TO DO MAYBE
+# put a safeConfirm, on ? spots, add a safeSpot()
+
+
+# for GUI
+import tkinter as tk
+
+# Create the main window
+root = tk.Tk()
+root.title("6x6 Grid with Movement")
+
+# Set window size
+root.geometry("400x400")
+
+# Create a 6x6 grid of labels (empty cells)
+grid = []
+for i in range(6):
+    row = []
+    for j in range(6):
+        if (playerVision[i][j] == 'H' or playerVision[i][j] == 'S' or playerVision[i][j] == '#' or playerVision[i][j] == '@'):
+            label = tk.Label(root, text=playerVision[i][j], width=5, height=2, bg="green", relief="solid", anchor="center")
+        elif (playerVision[i][j] == 'P'):
+            label = tk.Label(root, text=playerVision[i][j], width=5, height=2, bg="red", relief="solid", anchor="center")
+        else:
+            label = tk.Label(root, text=playerVision[i][j], width=5, height=2, relief="solid", anchor="center")
+        label.grid(row=i, column=j, padx=0, pady=0)  # Ensure no extra padding
+        row.append(label)
+    grid.append(row)
+
+# Buttons for movement (remove the gap between buttons)
+button_up = tk.Button(root, text="Up", command=lambda: playerMove("move up"))
+button_up.grid(row=6, column=2, padx=0, pady=5)
+
+button_down = tk.Button(root, text="Down", command=lambda: playerMove("move down"))
+button_down.grid(row=7, column=2, padx=0, pady=5)
+
+button_left = tk.Button(root, text="Left", command=lambda: playerMove("move left"))
+button_left.grid(row=6, column=1, padx=0, pady=5)
+
+button_right = tk.Button(root, text="Right", command=lambda: playerMove("move right"))
+button_right.grid(row=6, column=3, padx=0, pady=5)
+
+displayMap()
+
+root.mainloop()
+
+# End of GUI code
