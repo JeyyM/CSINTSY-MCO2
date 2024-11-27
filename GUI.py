@@ -183,6 +183,7 @@ def playerMove(direction):
         # Gold check
         is_glitter = bool(list(prolog.query(f"glitter(({x}, {y}))")))
         if is_glitter:
+            playerVision[y][x] = "G"
             coinCount += 1
             grab(x, y)
         # die
