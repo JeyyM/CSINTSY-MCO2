@@ -62,12 +62,7 @@ DIRECTIONS = [
 # two maps, think like sokobot
 map = parseMap(load_map(sys.argv[1]))
 
-playerVision = [ ['.', '.', '.', '.', '.', '.'],
-                ['.', '.', '.', '.', '.', '.'],
-                ['.', '.', '.', '.', '.', '.'],
-                ['.', '.', '.', '.', '.', '.'],
-                ['.', '.', '.', '.', '.', '.'],
-                ['.', '.', '.', '.', '.', '.'] ]
+playerVision = [['.'] * len(map) for i in range(len(map))]
 
 # store those spots as pit or gold within the KB
 def storeItems(map):
