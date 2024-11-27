@@ -1,70 +1,13 @@
-"""
-import tkinter as tk
-
-# Create the main window
-root = tk.Tk()
-root.title("6x6 Grid with Movement")
-
-# Set window size
-root.geometry("400x400")
-
-# Create a 6x6 grid of labels (empty cells)
-grid = []
-for i in range(6):
-    row = []
-    for j in range(6):
-        label = tk.Label(root, text=" ", width=5, height=2, relief="solid", anchor="center")
-        label.grid(row=i, column=j, padx=0, pady=0)  # Ensure no extra padding
-        row.append(label)
-    grid.append(row)
-
-# Create a label that will move within the grid (cursor)
-cursor = tk.Label(root, text="X", width=5, height=2, bg="blue", fg="white", anchor="center")
-cursor.grid(row=0, column=0)
-
-# Initialize the cursor's position
-cursor_pos = [0, 0]
-
-# Function to move the cursor
-def move_cursor(direction):
-    global cursor_pos
-
-    # Update position based on the direction
-    if direction == "up" and cursor_pos[0] > 0:
-        cursor_pos[0] -= 1
-    elif direction == "down" and cursor_pos[0] < 5:
-        cursor_pos[0] += 1
-    elif direction == "left" and cursor_pos[1] > 0:
-        cursor_pos[1] -= 1
-    elif direction == "right" and cursor_pos[1] < 5:
-        cursor_pos[1] += 1
-
-    # Update the cursor position in the grid
-    cursor.grid(row=cursor_pos[0], column=cursor_pos[1])
-
-# Buttons for movement (remove the gap between buttons)
-button_up = tk.Button(root, text="Up", command=lambda: move_cursor("up"))
-button_up.grid(row=6, column=2, padx=0, pady=5)
-
-button_down = tk.Button(root, text="Down", command=lambda: move_cursor("down"))
-button_down.grid(row=7, column=2, padx=0, pady=5)
-
-button_left = tk.Button(root, text="Left", command=lambda: move_cursor("left"))
-button_left.grid(row=6, column=1, padx=0, pady=5)
-
-button_right = tk.Button(root, text="Right", command=lambda: move_cursor("right"))
-button_right.grid(row=6, column=3, padx=0, pady=5)
-
-# Run the Tkinter event loop
-root.mainloop()
-
-"""
 # pip install pyswip
 
 # for prolog use
 from pyswip import Prolog
 prolog = Prolog()
 prolog.consult("kb.pl")
+
+# for GUI
+import tkinter as tk
+from tkinter import messagebox
 
 # game status
 coinCount = 0
@@ -152,6 +95,7 @@ def movePlayer(playerPos, direction):
 # Not really necessary but since specs call them that
 def grab(x, y):
     print("GRABBING")
+    messagebox.showinfo("Gold Grabbed", "You got a gold!")
     prolog.retract(f"gold(({x}, {y}))")
 
 def leave(coinCount):
@@ -260,17 +204,25 @@ def playerMove(direction):
     print("Player Vision:")
     displayMap()
 
+    header_label = tk.Label(root, text="Gold Count: " + str(coinCount), font=("Arial", 16), width=20, height=2)
+    header_label.grid(row=0, column=0, columnspan=6, pady=10)  # Columnspan makes the header span across all columns
+
+    # Create the main window
+    header_label = tk.Label(root, text="Gold Count: " + str(coinCount), font=("Arial", 16), width=20, height=2)
+    header_label.grid(row=0, column=0, columnspan=6, pady=10)  # Columnspan makes the header span across all columns
+
+    # Create a 6x6 grid of labels (empty cells)
     grid = []
     for i in range(6):
         row = []
         for j in range(6):
             if (playerVision[i][j] == 'H' or playerVision[i][j] == 'S' or playerVision[i][j] == '#' or playerVision[i][j] == '@'):
-                label = tk.Label(root, text=playerVision[i][j], width=5, height=2, bg="green", relief="solid", anchor="center")
+                label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="green", relief="solid", anchor="center")
             elif (playerVision[i][j] == 'P'):
-                label = tk.Label(root, text=playerVision[i][j], width=5, height=2, bg="red", relief="solid", anchor="center")
+                label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="red", relief="solid", anchor="center")
             else:
-                label = tk.Label(root, text=playerVision[i][j], width=5, height=2, relief="solid", anchor="center")
-            label.grid(row=i, column=j, padx=0, pady=0)  # Ensure no extra padding
+                label = tk.Label(root, text=playerVision[i][j], width=10, height=4, relief="solid", anchor="center")
+            label.grid(row=i+1, column=j, padx=0, pady=0)  # Note the row is shifted by 1 to make space for the header
             row.append(label)
         grid.append(row)
 
@@ -278,15 +230,15 @@ def playerMove(direction):
 # put a safeConfirm, on ? spots, add a safeSpot()
 
 
-# for GUI
-import tkinter as tk
-
-# Create the main window
 root = tk.Tk()
-root.title("6x6 Grid with Movement")
+root.title("Adventure World")
 
 # Set window size
-root.geometry("400x400")
+root.geometry("456x700")
+
+# Create the main window
+header_label = tk.Label(root, text="Gold Count: " + str(coinCount), font=("Arial", 16), width=20, height=2)
+header_label.grid(row=0, column=0, columnspan=6, pady=10)  # Columnspan makes the header span across all columns
 
 # Create a 6x6 grid of labels (empty cells)
 grid = []
@@ -294,27 +246,27 @@ for i in range(6):
     row = []
     for j in range(6):
         if (playerVision[i][j] == 'H' or playerVision[i][j] == 'S' or playerVision[i][j] == '#' or playerVision[i][j] == '@'):
-            label = tk.Label(root, text=playerVision[i][j], width=5, height=2, bg="green", relief="solid", anchor="center")
+            label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="green", relief="solid", anchor="center")
         elif (playerVision[i][j] == 'P'):
-            label = tk.Label(root, text=playerVision[i][j], width=5, height=2, bg="red", relief="solid", anchor="center")
+            label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="red", relief="solid", anchor="center")
         else:
-            label = tk.Label(root, text=playerVision[i][j], width=5, height=2, relief="solid", anchor="center")
-        label.grid(row=i, column=j, padx=0, pady=0)  # Ensure no extra padding
+            label = tk.Label(root, text=playerVision[i][j], width=10, height=4, relief="solid", anchor="center")
+        label.grid(row=i+1, column=j, padx=0, pady=0)  # Note the row is shifted by 1 to make space for the header
         row.append(label)
     grid.append(row)
 
 # Buttons for movement (remove the gap between buttons)
 button_up = tk.Button(root, text="Up", command=lambda: playerMove("move up"))
-button_up.grid(row=6, column=2, padx=0, pady=5)
+button_up.grid(row=24, column=2, padx=0, pady=5)
 
 button_down = tk.Button(root, text="Down", command=lambda: playerMove("move down"))
-button_down.grid(row=7, column=2, padx=0, pady=5)
+button_down.grid(row=28, column=2, padx=0, pady=5)
 
 button_left = tk.Button(root, text="Left", command=lambda: playerMove("move left"))
-button_left.grid(row=6, column=1, padx=0, pady=5)
+button_left.grid(row=28, column=1, padx=0, pady=5)
 
 button_right = tk.Button(root, text="Right", command=lambda: playerMove("move right"))
-button_right.grid(row=6, column=3, padx=0, pady=5)
+button_right.grid(row=28, column=3, padx=0, pady=5)
 
 displayMap()
 
