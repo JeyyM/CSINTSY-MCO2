@@ -200,7 +200,7 @@ def markSpots(playerPosition):
     
     print("COORDINATE CHECK", x, y, playerVision[x][y])
 
-    if (playerVision[y][x] != "#" and playerVision[y][x] != "G"):
+    if (playerVision[y][x] != "#" and playerVision[y][x] != "G" and playerVision[y][x] != "P"):
         if isBreeze:
             print(f"Adding breezeSpot: ({x}, {y})")
             prolog.assertz(f"breezeSpot(({x}, {y}))")
@@ -256,7 +256,7 @@ def playerMove(direction):
             playerVision[originalY][originalX] = "G"
 
         # To always maintain @
-        if playerVision[y][x] == "." or playerVision[y][x] == "S" or playerVision[y][x] == "?" or playerVision[y][x] == "#":
+        if playerVision[y][x] == "." or playerVision[y][x] == "S" or playerVision[y][x] == "?" or playerVision[y][x] == "#" or playerVision[y][x] == "P":
             playerVision[y][x] = "@"
             if playerVision[y][x] != "#":
                 prolog.assertz(f"explored(({x}, {y}))")
