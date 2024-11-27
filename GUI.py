@@ -75,11 +75,16 @@ def storeItems(map):
         for j in range(len(map[i])):
             cell = map[i][j]
             if cell == 'P':
-                prolog.assertz(f"pit(({j}, {i}))")
+                print("PRINTING i and j", i, j)
+                if (i == 0 and j == 0) or (i == 0 and j == len(map[i]) - 1) or (i == len(map[i]) - 1 and j == 0) or (i == len(map[i]) - 1 and j == len(map[i]) - 1):
+                    prolog.assertz(f"cornerPit(({j}, {i}))")
+                else:
+                    prolog.assertz(f"pit(({j}, {i}))")
             elif cell == 'G':
                 prolog.assertz(f"gold(({j}, {i}))")
 
 storeItems(map)
+print("CORNER Pit Spots:", list(prolog.query("cornerPit((X, Y))")))
 
 def findPlayerStart(map):
     for i in range(len(map)):
@@ -193,7 +198,17 @@ def findPits(adjX, adjY):
     print("Current Pit Spots:", list(prolog.query("pit((X, Y))")))
     print("Current Breeze Spots:", list(prolog.query("breezeSpot((X, Y))")))
     
-    findPit = bool(list(prolog.query(f"findPit(({adjX}, {adjY}))")))
+    size = len(map)
+    
+    print("FOR CORNER CHECK", adjX, adjY)
+    if (adjX == 0 and adjY == 0) or \
+       (adjX == size - 1 and adjY == 0) or \
+       (adjX == 0 and adjY == size - 1) or \
+       (adjX == size - 1 and adjY == size - 1):
+        print("CHECKING CORNER FOR PIT")
+        findPit = bool(list(prolog.query(f"findPitCorner(({adjX}, {adjY}))")))
+    else:
+        findPit = bool(list(prolog.query(f"findPit(({adjX}, {adjY}))")))
     return findPit
 
 def markSpots(playerPosition):

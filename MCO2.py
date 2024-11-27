@@ -46,7 +46,7 @@ def storeItems(map):
                 prolog.assertz(f"gold(({j}, {i}))")
 
 storeItems(map)
-print("Current Pit Spots:", list(prolog.query("cornerPit((X, Y))")))
+print("CORNER Pit Spots:", list(prolog.query("cornerPit((X, Y))")))
 
 def findPlayerStart(map):
     for i in range(len(map)):
