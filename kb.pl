@@ -25,3 +25,16 @@ findPit((X, Y)) :-
     % Check if there are enough breeze spots
     length(BreezeSpots, Count),
     Count >= 3.
+
+safeConfirm((X, Y)) :-
+    findall((AdjX, AdjY), (adjacent((X, Y), (AdjX, AdjY)), explored((AdjX, AdjY))), Explored),
+
+    % Check if there are enough breeze spots
+    length(Explored, Count),
+    Count >= 4.
+
+% explored(1,2)
+% pit(1,3)
+
+% breezeSpot(1, 3)
+% breezeSpot(1, 3)
