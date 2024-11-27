@@ -104,16 +104,16 @@ def updateMap():
     for i in range(6):
         row = []
         for j in range(6):
-            if (playerVision[i][j] == 'H' or playerVision[i][j] == 'S' or playerVision[i][j] == '#'):
+            if (playerVision[i][j] == 'H' or playerVision[i][j] == 'S' or playerVision[i][j] == '#' or playerVision[i][j] == "H@" or playerVision[i][j] == "@"):
                 label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="green", relief="solid", anchor="center")
-            elif (playerVision[i][j] == '@'):
-                label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="green", relief="solid", anchor="center", font=("Arial", 9, "bold underline"))
-            elif (playerVision[i][j] == 'G'):
+            elif (playerVision[i][j] == 'G' or playerVision[i][j] == "G@"):
                 label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="yellow", relief="solid", anchor="center")
             elif (playerVision[i][j] == 'P'):
                 label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="red", relief="solid", anchor="center")
             else:
                 label = tk.Label(root, text=playerVision[i][j], width=10, height=4, relief="solid", anchor="center")
+            if (playerVision[i][j] == '@' or playerVision[i][j] == 'H@' or playerVision[i][j] == 'G@'):
+                label.config(font=("Arial", 9, "bold underline"))
             label.grid(row=i+1, column=j, padx=0, pady=0)  # Note the row is shifted by 1 to make space for the header
             row.append(label)
 
@@ -122,7 +122,7 @@ def updateMap():
 def grab(x, y):
     global coinCount
 
-    if (playerVision[y][x] == "G"):
+    if (playerVision[y][x] == "G" or playerVision[y][x] == "G@"):
         print("GRABBING")
         coinCount += 1
         playerVision[y][x] = "@"
@@ -171,7 +171,7 @@ def markSpots(playerPosition):
     
     print("COORDINATE CHECK", x, y, playerVision[x][y])
 
-    if (playerVision[y][x] != "#"):
+    if (playerVision[y][x] != "#" and playerVision[y][x] != "G"):
         if isBreeze:
             print(f"Adding breezeSpot: ({x}, {y})")
             prolog.assertz(f"breezeSpot(({x}, {y}))")
@@ -195,11 +195,11 @@ def markSpots(playerPosition):
                             playerVision[adjY][adjX] = "?"
                 else:
                     # to not modify @ or #
-                    if playerVision[adjY][adjX] == "." or playerVision[adjY][adjX] == "?":
+                    if playerVision[adjY][adjX] == "." or playerVision[adjY][adjX] == "?" or playerVision[adjY][adjX] == "P":
                         playerVision[adjY][adjX] = "S"
 
 # Set the player's starting position in playerVision
-playerVision[playerPosition[1]][playerPosition[0]] = "H"
+playerVision[playerPosition[1]][playerPosition[0]] = "H@"
 # Mark spots as explored so they dont get checked for pits
 # otherwise, explored spots with 3 or more breezes become pits
 prolog.assertz(f"explored(({playerPosition[0]}, {playerPosition[1]}))")
@@ -221,18 +221,24 @@ def playerMove(direction):
         originalX, originalY = playerPosition
         if playerVision[originalY][originalX] == "@":
             playerVision[originalY][originalX] = "#"
+        elif playerVision[originalY][originalX] == "H@":
+            playerVision[originalY][originalX] = "H"
+        elif playerVision[originalY][originalX] == "G@":
+            playerVision[originalY][originalX] = "G"
 
         # To always maintain @
         if playerVision[y][x] == "." or playerVision[y][x] == "S" or playerVision[y][x] == "?" or playerVision[y][x] == "#":
             playerVision[y][x] = "@"
             if playerVision[y][x] != "#":
                 prolog.assertz(f"explored(({x}, {y}))")
+        elif playerVision[y][x] == "H":
+            playerVision[y][x] = "H@"
 
 
         # Gold check
         is_glitter = bool(list(prolog.query(f"glitter(({x}, {y}))")))
         if is_glitter:
-            playerVision[y][x] = "G"
+            playerVision[y][x] = "G@"
         # die
         elif bool(list(prolog.query(f"fall(({x}, {y}))"))):
             print("Mission Failed!")
