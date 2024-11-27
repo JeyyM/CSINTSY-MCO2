@@ -178,33 +178,33 @@ def markSpots(playerPosition):
     
     print("COORDINATE CHECK", x, y, playerVision[x][y])
 
-    if isBreeze:
-        if (playerVision[y][x] != "#"):
+    if (playerVision[y][x] != "#"):
+        if isBreeze:
             print(f"Adding breezeSpot: ({x}, {y})")
             prolog.assertz(f"breezeSpot(({x}, {y}))")
 
-    # Check all the adjacents of the destination
-    for xChange, yChange in DIRECTIONS:
-        adjX, adjY = x + xChange, y + yChange
-        if 0 <= adjX < len(map[0]) and 0 <= adjY < len(map):
-            if isBreeze and playerVision[y][x] != "#":
-                isPit = findPits(adjX, adjY)
-                if isPit:
-                    if (playerVision[y][x] != "#" or playerVision[y][x] != "@"):
-                        print(f"Pit found at ({adjX}, {adjY})")
-                        playerVision[adjY][adjX] = "P"
+        # Check all the adjacents of the destination
+        for xChange, yChange in DIRECTIONS:
+            adjX, adjY = x + xChange, y + yChange
+            if 0 <= adjX < len(map[0]) and 0 <= adjY < len(map):
+                if isBreeze:
+                    isPit = findPits(adjX, adjY)
+                    if isPit:
+                        if (playerVision[y][x] != "#" or playerVision[y][x] != "@"):
+                            print(f"Pit found at ({adjX}, {adjY})")
+                            playerVision[adjY][adjX] = "P"
 
-                    # prolog.assertz(f"pitSpot(({adjX}, {adjY}))")
-                    # print(f"Added pitSpot: ({adjX}, {adjY})")
+                        # prolog.assertz(f"pitSpot(({adjX}, {adjY}))")
+                        # print(f"Added pitSpot: ({adjX}, {adjY})")
+                    else:
+                        # to not modify P
+                        if playerVision[adjY][adjX] == ".":
+                            playerVision[adjY][adjX] = "?"
                 else:
-                    # to not modify P
-                    if playerVision[adjY][adjX] == ".":
-                        playerVision[adjY][adjX] = "?"
-            else:
-                # to not modify @ or #
+                    # to not modify @ or #
 
-                if playerVision[adjY][adjX] == "." or playerVision[adjY][adjX] == "?":
-                    playerVision[adjY][adjX] = "S"
+                    if playerVision[adjY][adjX] == "." or playerVision[adjY][adjX] == "?":
+                        playerVision[adjY][adjX] = "S"
 
 # Set the player's starting position in playerVision
 playerVision[playerPosition[1]][playerPosition[0]] = "H"
