@@ -92,6 +92,32 @@ def movePlayer(playerPos, direction):
     else:
         return playerPos, "Out of bounds"
 
+def updateMap():
+    displayMap()
+
+    # Create the main window
+    header_label = tk.Label(root, text="Gold Count: " + str(coinCount), font=("Arial", 16), width=20, height=2)
+    header_label.grid(row=0, column=0, columnspan=6, pady=10)  # Columnspan makes the header span across all columns
+
+    # Create a 6x6 grid of labels (empty cells)
+    grid = []
+    for i in range(6):
+        row = []
+        for j in range(6):
+            if (playerVision[i][j] == 'H' or playerVision[i][j] == 'S' or playerVision[i][j] == '#'):
+                label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="green", relief="solid", anchor="center")
+            elif (playerVision[i][j] == '@'):
+                label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="green", relief="solid", anchor="center", font=("Arial", 9, "bold underline"))
+            elif (playerVision[i][j] == 'G'):
+                label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="yellow", relief="solid", anchor="center")
+            elif (playerVision[i][j] == 'P'):
+                label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="red", relief="solid", anchor="center")
+            else:
+                label = tk.Label(root, text=playerVision[i][j], width=10, height=4, relief="solid", anchor="center")
+            label.grid(row=i+1, column=j, padx=0, pady=0)  # Note the row is shifted by 1 to make space for the header
+            row.append(label)
+
+        grid.append(row)
 # Not really necessary but since specs call them that
 def grab(x, y):
     global coinCount
@@ -103,40 +129,29 @@ def grab(x, y):
 
         messagebox.showinfo("Gold Grabbed", "You got a gold!")
 
-        displayMap()
-
-        # Create the main window
-        header_label = tk.Label(root, text="Gold Count: " + str(coinCount), font=("Arial", 16), width=20, height=2)
-        header_label.grid(row=0, column=0, columnspan=6, pady=10)  # Columnspan makes the header span across all columns
-
-        # Create a 6x6 grid of labels (empty cells)
-        grid = []
-        for i in range(6):
-            row = []
-            for j in range(6):
-                if (playerVision[i][j] == 'H' or playerVision[i][j] == 'S' or playerVision[i][j] == '#' or playerVision[i][j] == '@'):
-                    label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="green", relief="solid", anchor="center")
-                elif (playerVision[i][j] == 'P'):
-                    label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="red", relief="solid", anchor="center")
-                else:
-                    label = tk.Label(root, text=playerVision[i][j], width=10, height=4, relief="solid", anchor="center")
-                label.grid(row=i+1, column=j, padx=0, pady=0)  # Note the row is shifted by 1 to make space for the header
-                row.append(label)
-            grid.append(row)
+        updateMap()
 
         prolog.retract(f"gold(({x}, {y}))")
     else:
         print("No Gold")
-        messagebox.showinfo("No Gold Here", "Invalid Gold")
+        messagebox.showinfo("Invalid Gold", "No Gold Here")
 
-def leave():
+def leave(x, y):
     global coinCount
+    start = findPlayerStart(map)
 
-    if coinCount < 2:
-        print(f"Mission failed! Only {coinCount} coins collected.")
-        root.quit()
-    else:
-        print(f"Mission accomplished! {coinCount} coins collected.")
+    print(start)
+    print("X: " + str(x) + " Y: " + str(y))
+
+    if ((start[0] == x) and (start[1] == y)):
+        if coinCount < 2:
+            print(f"Mission failed! Only {coinCount} coins collected.")
+            messagebox.showinfo("Loss", "Mission Failed! Only " + str(coinCount) + " coins collected.")
+            root.quit()
+        else:
+            print(f"Mission accomplished! {coinCount} coins collected.")
+            messagebox.showinfo("Win", "Mission accomplished! " + str(coinCount) + " coins collected.")
+            root.quit()
 
 #
 def findPits(adjX, adjY):
@@ -223,11 +238,13 @@ def playerMove(direction):
             print("Mission Failed!")
             root.quit()
         # Home
+        """
         elif map[y][x] == 'H':
             # the player CAN leave but not forced to
             if (coinCount >= 2):
                 leave(coinCount)
                 root.quit()
+        """
 
         # Update player position
         playerPosition = newPosition
@@ -235,26 +252,7 @@ def playerMove(direction):
         print(message)
 
     print("Player Vision:")
-    displayMap()
-
-    # Create the main window
-    header_label = tk.Label(root, text="Gold Count: " + str(coinCount), font=("Arial", 16), width=20, height=2)
-    header_label.grid(row=0, column=0, columnspan=6, pady=10)  # Columnspan makes the header span across all columns
-
-    # Create a 6x6 grid of labels (empty cells)
-    grid = []
-    for i in range(6):
-        row = []
-        for j in range(6):
-            if (playerVision[i][j] == 'H' or playerVision[i][j] == 'S' or playerVision[i][j] == '#' or playerVision[i][j] == '@'):
-                label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="green", relief="solid", anchor="center")
-            elif (playerVision[i][j] == 'P'):
-                label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="red", relief="solid", anchor="center")
-            else:
-                label = tk.Label(root, text=playerVision[i][j], width=10, height=4, relief="solid", anchor="center")
-            label.grid(row=i+1, column=j, padx=0, pady=0)  # Note the row is shifted by 1 to make space for the header
-            row.append(label)
-        grid.append(row)
+    updateMap()
 
 # TO DO MAYBE
 # put a safeConfirm, on ? spots, add a safeSpot()
@@ -266,24 +264,7 @@ root.title("Adventure World")
 # Set window size
 root.geometry("456x700")
 
-# Create the main window
-header_label = tk.Label(root, text="Gold Count: " + str(coinCount), font=("Arial", 16), width=20, height=2)
-header_label.grid(row=0, column=0, columnspan=6, pady=10)  # Columnspan makes the header span across all columns
-
-# Create a 6x6 grid of labels (empty cells)
-grid = []
-for i in range(6):
-    row = []
-    for j in range(6):
-        if (playerVision[i][j] == 'H' or playerVision[i][j] == 'S' or playerVision[i][j] == '#' or playerVision[i][j] == '@'):
-            label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="green", relief="solid", anchor="center")
-        elif (playerVision[i][j] == 'P'):
-            label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="red", relief="solid", anchor="center")
-        else:
-            label = tk.Label(root, text=playerVision[i][j], width=10, height=4, relief="solid", anchor="center")
-        label.grid(row=i+1, column=j, padx=0, pady=0)  # Note the row is shifted by 1 to make space for the header
-        row.append(label)
-    grid.append(row)
+updateMap()
 
 # Buttons for movement (remove the gap between buttons)
 button_up = tk.Button(root, text="Up", command=lambda: playerMove("move up"))
@@ -298,13 +279,11 @@ button_left.grid(row=25, column=1, padx=0, pady=5)
 button_right = tk.Button(root, text="Right", command=lambda: playerMove("move right"))
 button_right.grid(row=25, column=3, padx=0, pady=5)
 
-button_leave = tk.Button(root, text="Leave World", command=lambda: leave())
+button_leave = tk.Button(root, text="Leave World", command=lambda: leave(playerPosition[0], playerPosition[1]))
 button_leave.grid(row=24, column=3, padx=0, pady=5)
 
 button_grab = tk.Button(root, text="Grab Gold", command=lambda: grab(playerPosition[0], playerPosition[1]))
 button_grab.grid(row=24, column=1, padx=0, pady=5)
-
-displayMap()
 
 root.mainloop()
 
