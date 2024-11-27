@@ -267,6 +267,8 @@ def playerMove(direction):
     action = direction
 
     newPosition, message = movePlayer(playerPosition, action)
+    breeze_text = ""
+    gold_text = ""
 
     if message == "Moved":
         x, y = newPosition
