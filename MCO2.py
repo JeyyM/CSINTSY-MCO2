@@ -111,7 +111,7 @@ def markSpots(playerPosition):
 
     # to add a new breeze to the KB
     isBreeze = bool(list(prolog.query(f"findBreeze(({x}, {y}))")))
-
+    
     print("COORDINATE CHECK", x, y, playerVision[x][y])
 
     if isBreeze:
@@ -138,7 +138,8 @@ def markSpots(playerPosition):
                         playerVision[adjY][adjX] = "?"
             else:
                 # to not modify @ or #
-                if playerVision[adjY][adjX] == ".":
+
+                if playerVision[adjY][adjX] == "." or playerVision[adjY][adjX] == "?":
                     playerVision[adjY][adjX] = "S"
 
 # Set the player's starting position in playerVision
@@ -192,3 +193,6 @@ while start:
         playerPosition = newPosition
     else:
         print(message)
+
+# TO DO MAYBE
+# put a safeConfirm, on ? spots, add a safeSpot()
