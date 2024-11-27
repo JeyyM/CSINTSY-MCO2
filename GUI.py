@@ -9,6 +9,45 @@ prolog.consult("kb.pl")
 import tkinter as tk
 from tkinter import messagebox
 
+# Map Reader
+
+import sys
+
+# Check if the script has received the correct number of arguments
+if len(sys.argv) != 2:
+    print("Usage: python gui.py <map_file>")
+    sys.exit(1)  # Exit the program if arguments are incorrect
+
+# Read the file name from the command line argument
+map_file = sys.argv[1]
+
+def load_map(map_file):
+    try:
+        with open(map_file, 'r') as file:
+            # Read map data from the file (just an example)
+            map_data = file.readlines()
+            print(f"Map data from {map_file}:")
+            return map_data
+    except FileNotFoundError:
+        print(f"Error: The file {map_file} was not found.")
+        sys.exit(1)
+
+def parseMap(map_data):
+    map = []
+    for row in map_data:
+        # Strip the row of any leading/trailing whitespace or newline characters
+        row = row.strip()
+        
+        # Convert each row (string) into a list of characters
+        map_row = list(row)
+        
+        # Append the row to the 2D map
+        map.append(map_row)
+    
+    return map
+
+# End of Map Reader
+
 # game status
 coinCount = 0
 start = True
@@ -21,12 +60,7 @@ DIRECTIONS = [
 ]
 
 # two maps, think like sokobot
-map = [ ['.', '.', '.', '.', 'G', '.'],
-        ['.', '.', 'P', '.', '.', '.'],
-        ['.', 'H', '.', 'P', '.', 'G'],
-        ['P', '.', '.', '.', 'G', '.'],
-        ['.', '.', '.', '.', 'P', '.'],
-        ['G', '.', 'G', '.', '.', '.']]
+map = parseMap(load_map(sys.argv[1]))
 
 playerVision = [ ['.', '.', '.', '.', '.', '.'],
                 ['.', '.', '.', '.', '.', '.'],
@@ -233,8 +267,6 @@ def playerMove(direction):
                 prolog.assertz(f"explored(({x}, {y}))")
         elif playerVision[y][x] == "H":
             playerVision[y][x] = "H@"
-
-
         # Gold check
         is_glitter = bool(list(prolog.query(f"glitter(({x}, {y}))")))
         if is_glitter:
@@ -242,15 +274,8 @@ def playerMove(direction):
         # die
         elif bool(list(prolog.query(f"fall(({x}, {y}))"))):
             print("Mission Failed!")
+            messagebox.showinfo("Loss", "Mission Failed! You fell down a pit.")
             root.quit()
-        # Home
-        """
-        elif map[y][x] == 'H':
-            # the player CAN leave but not forced to
-            if (coinCount >= 2):
-                leave(coinCount)
-                root.quit()
-        """
 
         # Update player position
         playerPosition = newPosition
@@ -260,9 +285,7 @@ def playerMove(direction):
     print("Player Vision:")
     updateMap()
 
-# TO DO MAYBE
-# put a safeConfirm, on ? spots, add a safeSpot()
-
+# GUI Code
 
 root = tk.Tk()
 root.title("Adventure World")
