@@ -7,11 +7,15 @@ adjacent((X1, Y1), (X2, Y2)) :-
 
 % breeze, glitter, and fall
 breeze((X, Y)) :- adjacent((X, Y), Pit), pit(Pit).
+breeze((X, Y)) :- adjacent((X, Y), Pit), cornerPit(Pit).
+
 glitter((X, Y)) :- gold((X, Y)).
 fall((X, Y)) :- pit((X, Y)).
+fall((X, Y)) :- cornerPit((X, Y)).
 
 % Breeze checker by using adjacent on all pits
 findBreeze((X, Y)) :- adjacent((X, Y), Pit), pit(Pit).
+findBreeze((X, Y)) :- adjacent((X, Y), Pit), cornerPit(Pit).
 
 % Compares all breezes found so far
 findPit((X, Y)) :-
@@ -31,3 +35,6 @@ findPitCorner((X, Y)) :-
     findall((AdjX, AdjY), (adjacent((X, Y), (AdjX, AdjY)), breezeSpot((AdjX, AdjY))), BreezeSpots),
     length(BreezeSpots, Count),
     Count >= 2.
+
+
+%cornerPit
