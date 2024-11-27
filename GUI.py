@@ -136,18 +136,20 @@ def movePlayer(playerPos, direction):
     else:
         return playerPos, "Out of bounds"
 
-def updateMap():
+def updateMap(g = "", b = ""):
     displayMap()
 
     # Create the main window
     header_label = tk.Label(root, text="Gold Count: " + str(coinCount), font=("Arial", 16), width=20, height=2)
-    header_label.grid(row=0, column=0, columnspan=6, pady=10)  # Columnspan makes the header span across all columns
+    header_label.grid(row=0, column=0, columnspan=len(map), pady=10)  # Columnspan makes the header span across all columns
+    breeze_label = tk.Label(root, text=b, width=20)
+    gold_label = tk.Label(root, text=g, width=20)
 
     # Create a 6x6 grid of labels (empty cells)
     grid = []
-    for i in range(6):
+    for i in range(len(map)):
         row = []
-        for j in range(6):
+        for j in range(len(map)):
             if (playerVision[i][j] == 'H' or playerVision[i][j] == 'S' or playerVision[i][j] == '#' or playerVision[i][j] == "H@" or playerVision[i][j] == "@"):
                 label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="green", relief="solid", anchor="center")
             elif (playerVision[i][j] == 'G' or playerVision[i][j] == "G@"):
@@ -162,6 +164,9 @@ def updateMap():
             row.append(label)
 
         grid.append(row)
+    
+    breeze_label.grid(row=26, column=0, columnspan=len(map), pady=10) 
+    gold_label.grid(row=27, column=0, columnspan=len(map), pady=10) 
 # Not really necessary but since specs call them that
 def grab(x, y):
     global coinCount
@@ -196,6 +201,8 @@ def leave(x, y):
             print(f"Mission accomplished! {coinCount} coins collected.")
             messagebox.showinfo("Win", "Mission accomplished! " + str(coinCount) + " coins collected.")
             root.quit()
+    else:
+        messagebox.showinfo("Invalid Action", "You can only leave when you are home.")
 
 #
 def findPits(adjX, adjY):
@@ -215,7 +222,7 @@ def markSpots(playerPosition):
     
     print("COORDINATE CHECK", x, y, playerVision[x][y])
 
-    if (playerVision[y][x] != "#" and playerVision[y][x] != "G" and playerVision[y][x] != "P"):
+    if (playerVision[y][x] != "#" and playerVision[y][x] != "G"):
         if isBreeze:
             print(f"Adding breezeSpot: ({x}, {y})")
             prolog.assertz(f"breezeSpot(({x}, {y}))")
@@ -241,6 +248,10 @@ def markSpots(playerPosition):
                     # to not modify @ or #
                     if playerVision[adjY][adjX] == "." or playerVision[adjY][adjX] == "?" or playerVision[adjY][adjX] == "P":
                         playerVision[adjY][adjX] = "S"
+    if isBreeze:
+        return "You feel a breeze..."
+    else:
+        return ""
 
 # Set the player's starting position in playerVision
 playerVision[playerPosition[1]][playerPosition[0]] = "H@"
@@ -259,7 +270,8 @@ def playerMove(direction):
 
     if message == "Moved":
         x, y = newPosition
-        markSpots((x, y))
+        breeze_text = markSpots((x, y))
+        gold_text = ""
 
         # Update playerVision for the previous position
         originalX, originalY = playerPosition
@@ -272,15 +284,16 @@ def playerMove(direction):
 
         # To always maintain @
         if playerVision[y][x] == "." or playerVision[y][x] == "S" or playerVision[y][x] == "?" or playerVision[y][x] == "#" or playerVision[y][x] == "P":
-            playerVision[y][x] = "@"
             if playerVision[y][x] != "#":
                 prolog.assertz(f"explored(({x}, {y}))")
+            playerVision[y][x] = "@"
         elif playerVision[y][x] == "H":
             playerVision[y][x] = "H@"
         # Gold check
         is_glitter = bool(list(prolog.query(f"glitter(({x}, {y}))")))
         if is_glitter:
             playerVision[y][x] = "G@"
+            gold_text = "You see a glitter..."
         # die
         elif bool(list(prolog.query(f"fall(({x}, {y}))"))):
             print("Mission Failed!")
@@ -293,7 +306,7 @@ def playerMove(direction):
         print(message)
 
     print("Player Vision:")
-    updateMap()
+    updateMap(g = gold_text, b = breeze_text)
 
 # GUI Code
 
