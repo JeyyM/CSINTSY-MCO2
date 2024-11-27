@@ -81,6 +81,21 @@ def storeItems(map):
 
 storeItems(map)
 
+def addBoundaries():
+    rows = len(map)
+    cols = len(map[0])
+
+    for j in range(cols):
+        prolog.assertz(f"breezeSpot(({j}, -1))")
+        prolog.assertz(f"breezeSpot(({j}, {rows}))")
+
+    for i in range(-1, rows + 1):
+        prolog.assertz(f"breezeSpot((-1, {i}))")
+        prolog.assertz(f"breezeSpot(({cols}, {i}))")
+
+addBoundaries()
+print("Current Boundaries:", list(prolog.query("breezeSpot((X, Y))")))
+
 def findPlayerStart(map):
     for i in range(len(map)):
         for j in range(len(map[i])):

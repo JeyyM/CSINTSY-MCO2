@@ -23,7 +23,7 @@ findPit((X, Y)) :-
 
     % Check if there are enough breeze spots
     length(BreezeSpots, Count),
-    Count >= 3.
+    Count >= 4.
 
 findPitCorner((X, Y)) :-
     \+ explored((X, Y)),
