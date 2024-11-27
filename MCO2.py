@@ -196,3 +196,6 @@ while start:
 
 # TO DO MAYBE
 # put a safeConfirm, on ? spots, add a safeSpot()
+
+
+# down down right right left up right down right

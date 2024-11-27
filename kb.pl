@@ -32,9 +32,3 @@ safeConfirm((X, Y)) :-
     % Check if there are enough breeze spots
     length(Explored, Count),
     Count >= 4.
-
-% explored(1,2)
-% pit(1,3)
-
-% breezeSpot(1, 3)
-% breezeSpot(1, 3)
