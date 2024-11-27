@@ -94,13 +94,47 @@ def movePlayer(playerPos, direction):
 
 # Not really necessary but since specs call them that
 def grab(x, y):
-    print("GRABBING")
-    messagebox.showinfo("Gold Grabbed", "You got a gold!")
-    prolog.retract(f"gold(({x}, {y}))")
+    global coinCount
 
-def leave(coinCount):
+    if (playerVision[y][x] == "G"):
+        print("GRABBING")
+        coinCount += 1
+        playerVision[y][x] = "@"
+
+        messagebox.showinfo("Gold Grabbed", "You got a gold!")
+
+        displayMap()
+
+        # Create the main window
+        header_label = tk.Label(root, text="Gold Count: " + str(coinCount), font=("Arial", 16), width=20, height=2)
+        header_label.grid(row=0, column=0, columnspan=6, pady=10)  # Columnspan makes the header span across all columns
+
+        # Create a 6x6 grid of labels (empty cells)
+        grid = []
+        for i in range(6):
+            row = []
+            for j in range(6):
+                if (playerVision[i][j] == 'H' or playerVision[i][j] == 'S' or playerVision[i][j] == '#' or playerVision[i][j] == '@'):
+                    label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="green", relief="solid", anchor="center")
+                elif (playerVision[i][j] == 'P'):
+                    label = tk.Label(root, text=playerVision[i][j], width=10, height=4, bg="red", relief="solid", anchor="center")
+                else:
+                    label = tk.Label(root, text=playerVision[i][j], width=10, height=4, relief="solid", anchor="center")
+                label.grid(row=i+1, column=j, padx=0, pady=0)  # Note the row is shifted by 1 to make space for the header
+                row.append(label)
+            grid.append(row)
+
+        prolog.retract(f"gold(({x}, {y}))")
+    else:
+        print("No Gold")
+        messagebox.showinfo("No Gold Here", "Invalid Gold")
+
+def leave():
+    global coinCount
+
     if coinCount < 2:
         print(f"Mission failed! Only {coinCount} coins collected.")
+        root.quit()
     else:
         print(f"Mission accomplished! {coinCount} coins collected.")
 
@@ -184,8 +218,6 @@ def playerMove(direction):
         is_glitter = bool(list(prolog.query(f"glitter(({x}, {y}))")))
         if is_glitter:
             playerVision[y][x] = "G"
-            coinCount += 1
-            grab(x, y)
         # die
         elif bool(list(prolog.query(f"fall(({x}, {y}))"))):
             print("Mission Failed!")
@@ -204,9 +236,6 @@ def playerMove(direction):
 
     print("Player Vision:")
     displayMap()
-
-    header_label = tk.Label(root, text="Gold Count: " + str(coinCount), font=("Arial", 16), width=20, height=2)
-    header_label.grid(row=0, column=0, columnspan=6, pady=10)  # Columnspan makes the header span across all columns
 
     # Create the main window
     header_label = tk.Label(root, text="Gold Count: " + str(coinCount), font=("Arial", 16), width=20, height=2)
@@ -261,13 +290,19 @@ button_up = tk.Button(root, text="Up", command=lambda: playerMove("move up"))
 button_up.grid(row=24, column=2, padx=0, pady=5)
 
 button_down = tk.Button(root, text="Down", command=lambda: playerMove("move down"))
-button_down.grid(row=28, column=2, padx=0, pady=5)
+button_down.grid(row=25, column=2, padx=0, pady=5)
 
 button_left = tk.Button(root, text="Left", command=lambda: playerMove("move left"))
-button_left.grid(row=28, column=1, padx=0, pady=5)
+button_left.grid(row=25, column=1, padx=0, pady=5)
 
 button_right = tk.Button(root, text="Right", command=lambda: playerMove("move right"))
-button_right.grid(row=28, column=3, padx=0, pady=5)
+button_right.grid(row=25, column=3, padx=0, pady=5)
+
+button_leave = tk.Button(root, text="Leave World", command=lambda: leave())
+button_leave.grid(row=24, column=3, padx=0, pady=5)
+
+button_grab = tk.Button(root, text="Grab Gold", command=lambda: grab(playerPosition[0], playerPosition[1]))
+button_grab.grid(row=24, column=1, padx=0, pady=5)
 
 displayMap()
 
